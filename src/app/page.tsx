@@ -1,9 +1,13 @@
 import React from 'react'
-
+import { Navbar } from '@/components/NavBar'
+import { Stats } from '@/components/Stats'
 const page = () => {
   return (
     <div>
-      <h1>Hello World</h1>
+      <Navbar />
+      <main className="container mx-auto px-4 py-8 pt-20">
+        <Stats />
+      </main>
     </div>
   )
 }
