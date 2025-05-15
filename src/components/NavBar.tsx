@@ -1,7 +1,43 @@
 "use client"
 
+import { useState } from "react"
+import { LogProblemDialog } from "./LogProblemDialog"
+import { SkipConfirmDialog } from "./SkipConfirmDialog"
 
 export function Navbar() {
+  const [isLogDialogOpen, setIsLogDialogOpen] = useState(false);
+  const [isSkipDialogOpen, setIsSkipDialogOpen] = useState(false);
+
+  const handleLogProblem = () => {
+    setIsLogDialogOpen(true);
+  };
+
+  const handleUseSkip = () => {
+    setIsSkipDialogOpen(true);
+  };
+
+  const handleCloseLogDialog = () => {
+    setIsLogDialogOpen(false);
+  };
+
+  const handleCloseSkipDialog = () => {
+    setIsSkipDialogOpen(false);
+  };
+
+  const handleSubmitProblem = (data: {
+    userId: string;
+    problemName: string;
+    problemLink: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+  }) => {
+    console.log('Problem logged:', data);
+    // In a real application, you would save this data to your database
+  };
+
+  const handleConfirmSkip = () => {
+    console.log('Skip confirmed');
+    // In a real application, you would increment the user's skip count
+  };
 
   return (
     <header
@@ -15,17 +51,31 @@ export function Navbar() {
           <div className="flex items-center space-x-2">
             <button
               className="text-sm px-4 py-3 bg-green-600 text-white hover:bg-green-700 rounded-lg tracking-tight font-semibold"
+              onClick={handleLogProblem}
             >
               Log Problem
             </button>
             <button
               className="text-sm text-gray-800 border-2 border-gray-200 rounded-lg px-4 py-3 hover:bg-gray-100 tracking-tight font-semibold"
+              onClick={handleUseSkip}
             >
               Use Skip
             </button>
           </div>
         </div>
       </div>
+
+      <LogProblemDialog 
+        isOpen={isLogDialogOpen} 
+        onClose={handleCloseLogDialog}
+        onSubmit={handleSubmitProblem}
+      />
+
+      <SkipConfirmDialog
+        isOpen={isSkipDialogOpen}
+        onClose={handleCloseSkipDialog}
+        onConfirm={handleConfirmSkip}
+      />
     </header>
   )
 }
