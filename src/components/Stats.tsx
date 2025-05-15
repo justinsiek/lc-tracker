@@ -45,49 +45,49 @@ export const Stats = () => {
     <div className="mx-auto max-w-7xl space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Days Left Card */}
-        <div className="rounded-lg border border-gray-300 bg-card">
-          <div className="pb-2 p-6">
-            <h3 className="text-sm font-medium">Challenge Duration</h3>
+        <div className="rounded-lg border border-gray-300">
+          <div className="pb-2 p-4">
+            <h3 className="text-md font-medium">Challenge Duration</h3>
           </div>
-          <div className="p-6 pt-0">
+          <div className="p-4 pt-0">
             <div className="text-2xl text-green-600 font-bold">2 <span className="text-sm font-normal text-gray-500">days</span></div>
           </div>
         </div>
 
         {/* Prize Pool Card */}
         <div className="rounded-lg border border-gray-300 bg-card">
-          <div className="pb-2 p-6">
-            <h3 className="text-sm font-medium text-gray-800">Prize Pool</h3>
+          <div className="pb-2 p-4">
+            <h3 className="text-md font-medium text-gray-800">Prize Pool</h3>
           </div>
-          <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-green-600"><span className="text-gray-500">$</span>50</div>
+          <div className="p-4 pt-0">
+            <div className="text-2xl font-bold text-green-600"><span className="text-gray-400">$</span>50</div>
           </div>
         </div>
 
         {/* Problems Completed Card */}
         <div className="rounded-lg border border-gray-300 bg-card">
-          <div className="pb-2 p-6">
-            <h3 className="text-sm font-medium text-gray-800">Problems Completed</h3>
+          <div className="pb-2 p-4">
+            <h3 className="text-md font-medium text-gray-800">Problems Completed</h3>
           </div>
-          <div className="p-6 pt-0">
+          <div className="p-4 pt-0">
             <div className="text-2xl font-bold text-green-600">{data.users[0].completed} <span className="text-sm font-normal text-gray-500">problems completed</span></div>
           </div>
         </div>
 
         {/* Skips Used Card */}
         <div className="rounded-lg border border-gray-300 bg-card">
-          <div className="pb-2 p-6">
-            <h3 className="text-sm font-medium text-gray-800">Skips Used</h3>
+          <div className="pb-2 p-4">
+            <h3 className="text-md font-medium text-gray-800">Skips Used</h3>
           </div>
-          <div className="p-6 pt-0">
+          <div className="p-4 pt-0">
             <div className="text-2xl font-bold text-green-600">{data.users[1].skipped} <span className="text-sm font-normal text-gray-500">skips used</span></div>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="flex gap-4 w-full">
         {data.users.map((user) => (
-          <div key={user.id} className="rounded-lg border border-gray-300 bg-card">
+          <div key={user.id} className="rounded-lg border border-gray-300 bg-card w-full">
             <div className="p-6">
               <div className="flex justify-between">
                 <div>

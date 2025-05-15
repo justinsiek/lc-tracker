@@ -5,7 +5,7 @@ const page = () => {
   return (
     <div>
       <Navbar />
-      <main className="container mx-auto px-4 py-8 pt-20">
+      <main className="container mx-auto px-4 py-8 pt-24">
         <Stats />
       </main>
     </div>
