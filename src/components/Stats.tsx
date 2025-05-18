@@ -136,8 +136,10 @@ export const Stats = () => {
                   <h3 className="text-lg font-semibold text-gray-800">{user.name}'s Progress</h3>
                   <p className="text-sm text-muted-foreground">{user.completed} problems completed this month</p>
                 </div>
-                <div className="flex items-center gap-1 text-xs h-7 text-gray-700 rounded-full bg-orange-100 px-2 py-1 border-2 border-orange-300">
-                  <Flame className="h-4 w-4 text-orange-500" /> 
+                <div className={`flex items-center gap-1 text-xs h-7 rounded-full px-2 py-1 border-2 ${
+                  user.currentStreak > 0 ? 'text-gray-700 bg-orange-100 border-orange-300' : 'text-gray-700 bg-gray-100 border-gray-300'
+                }`}>
+                  <Flame className={`h-4 w-4 ${user.currentStreak > 0 ? 'text-orange-500' : 'text-gray-400'}`} /> 
                   <span>
                     {user.currentStreak} day streak
                   </span>
@@ -147,9 +149,15 @@ export const Stats = () => {
             <div className="p-6 pt-0 space-y-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 border-2 border-emerald-300">
-                    <Check className="h-5 w-5 text-emerald-600" />
-                  </div>
+                  {user.currentStreak > 0 ? (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 border-2 border-emerald-300">
+                      <Check className="h-5 w-5 text-emerald-600" />
+                    </div>
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 border-2 border-red-300">
+                      <X className="h-5 w-5 text-red-500" />
+                    </div>
+                  )}
                   <div>
                     <div className="text-sm font-medium">Last Problem</div>
                     <div className="text-xs text-muted-foreground">{user.lastProblem || 'N/A'}</div>
