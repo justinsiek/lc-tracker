@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, CalendarDays, Trophy, Info } from 'lucide-react'
+import { useStatsRefresh } from '@/contexts/StatsContext'
 
 // Define problem difficulty types
 type ProblemDifficulty = 'easy' | 'medium' | 'hard';
@@ -15,45 +16,14 @@ interface Problem {
   userId: string;
 }
 
-// Mock data for problems completed
-const mockProblems: Problem[] = [
-  // Noah's problems
-  { id: "p1", title: "Two Sum", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 1), userId: "1" },
-  { id: "p2", title: "Add Two Numbers", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 2), userId: "1" },
-  { id: "p3", title: "Longest Substring", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 3), userId: "1" },
-  { id: "p4", title: "Median of Two Sorted Arrays", difficulty: "hard", date: new Date(2025, new Date().getMonth(), 5), userId: "1" },
-  { id: "p5", title: "Palindrome Number", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 7), userId: "1" },
-  { id: "p6", title: "Container With Most Water", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 8), userId: "1" },
-  { id: "p7", title: "Integer to Roman", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 9), userId: "1" },
-  { id: "p8", title: "Roman to Integer", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 10), userId: "1" },
-  { id: "p9", title: "Longest Common Prefix", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 11), userId: "1" },
-  { id: "p10", title: "3Sum", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 12), userId: "1" },
-  { id: "p11", title: "Letter Combinations", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 13), userId: "1" },
-  { id: "p12", title: "Remove Nth Node", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 14), userId: "1" },
-  { id: "p13", title: "Valid Parentheses", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 15), userId: "1" },
-  { id: "p14", title: "Merge Two Sorted Lists", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 16), userId: "1" },
-  { id: "p15", title: "Generate Parentheses", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 17), userId: "1" },
-  { id: "p16", title: "Merge k Sorted Lists", difficulty: "hard", date: new Date(2025, new Date().getMonth(), 18), userId: "1" },
-  { id: "p17", title: "Reverse Nodes in k-Group", difficulty: "hard", date: new Date(2025, new Date().getMonth(), 19), userId: "1" },
-  
-  // Justin's problems
-  { id: "p18", title: "Two Sum", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 1), userId: "2" },
-  { id: "p19", title: "Add Two Numbers", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 2), userId: "2" },
-  { id: "p20", title: "Longest Substring", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 3), userId: "2" },
-  { id: "p21", title: "Palindrome Number", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 5), userId: "2" },
-  { id: "p22", title: "Container With Most Water", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 6), userId: "2" },
-  { id: "p23", title: "Integer to Roman", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 7), userId: "2" },
-  { id: "p24", title: "Roman to Integer", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 8), userId: "2" },
-  { id: "p25", title: "Longest Common Prefix", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 9), userId: "2" },
-  { id: "p26", title: "3Sum", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 10), userId: "2" },
-  { id: "p27", title: "Letter Combinations", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 11), userId: "2" },
-  { id: "p28", title: "Remove Nth Node", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 12), userId: "2" },
-  { id: "p29", title: "Valid Parentheses", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 13), userId: "2" },
-  { id: "p30", title: "Merge Two Sorted Lists", difficulty: "easy", date: new Date(2025, new Date().getMonth(), 14), userId: "2" },
-  { id: "p31", title: "Generate Parentheses", difficulty: "medium", date: new Date(2025, new Date().getMonth(), 15), userId: "2" },
-  { id: "p32", title: "Merge k Sorted Lists", difficulty: "hard", date: new Date(2025, new Date().getMonth(), 17), userId: "2" },
-  { id: "p33", title: "Trapping Rain Water", difficulty: "hard", date: new Date(2025, new Date().getMonth(), 19), userId: "2" },
-];
+// API response type (date is string)
+interface ApiProblem {
+  id: string;
+  title: string;
+  difficulty: ProblemDifficulty;
+  date: string; // Date from API is a string
+  userId: string;
+}
 
 // User data (matching Stats component)
 const users = [
@@ -64,9 +34,44 @@ const users = [
 export const Calendar = () => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [currentYear, setCurrentYear] = useState(2025);
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
+
+  const [problemsData, setProblemsData] = useState<Problem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { refreshKey } = useStatsRefresh();
+
+  useEffect(() => {
+    const fetchCalendarProblems = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/calendar-problems');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        const data: ApiProblem[] = await response.json();
+        
+        // Convert date strings to Date objects
+        const formattedData: Problem[] = data.map(problem => ({
+          ...problem,
+          date: new Date(problem.date), // Convert string to Date
+        }));
+        setProblemsData(formattedData);
+
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch calendar problems');
+        setProblemsData([]); // Clear data or handle error appropriately
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCalendarProblems();
+  }, [refreshKey]);
 
   // Get days in month
   const getDaysInMonth = (year: number, month: number) => {
@@ -116,16 +121,15 @@ export const Calendar = () => {
 
   // Get problems for a specific day
   const getProblemsForDay = (day: number, userId?: string) => {
-    const date = new Date(currentYear, currentMonth, day);
     if (userId) {
-      return mockProblems.filter(problem => 
+      return problemsData.filter(problem => 
         problem.date.getDate() === day && 
         problem.date.getMonth() === currentMonth && 
         problem.date.getFullYear() === currentYear &&
         problem.userId === userId
       );
     }
-    return mockProblems.filter(problem => 
+    return problemsData.filter(problem => 
       problem.date.getDate() === day && 
       problem.date.getMonth() === currentMonth && 
       problem.date.getFullYear() === currentYear
@@ -230,24 +234,32 @@ export const Calendar = () => {
 
   // Calculate total problems completed this month
   const calculateMonthlyStats = () => {
-    const problems = mockProblems.filter(problem => 
+    const problemsInCurrentMonth = problemsData.filter(problem => 
       problem.date.getMonth() === currentMonth && 
       problem.date.getFullYear() === currentYear
     );
 
     return {
-      total: problems.length,
-      easy: problems.filter(p => p.difficulty === 'easy').length,
-      medium: problems.filter(p => p.difficulty === 'medium').length,
-      hard: problems.filter(p => p.difficulty === 'hard').length,
+      total: problemsInCurrentMonth.length,
+      easy: problemsInCurrentMonth.filter(p => p.difficulty === 'easy').length,
+      medium: problemsInCurrentMonth.filter(p => p.difficulty === 'medium').length,
+      hard: problemsInCurrentMonth.filter(p => p.difficulty === 'hard').length,
       byUser: users.map(user => ({
         name: user.name,
-        count: problems.filter(p => p.userId === user.id).length
+        count: problemsInCurrentMonth.filter(p => p.userId === user.id).length
       }))
     };
   };
 
   const monthlyStats = calculateMonthlyStats();
+
+  if (isLoading) {
+    return <div className="mt-6 rounded-lg border border-gray-300 p-6 text-center"><p>Loading calendar data...</p></div>;
+  }
+
+  if (error) {
+    return <div className="mt-6 rounded-lg border border-gray-300 p-6 text-center text-red-500"><p>Error loading calendar: {error}</p></div>;
+  }
 
   return (
     <div className="mt-6 rounded-lg border border-gray-300 ">
