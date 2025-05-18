@@ -11,6 +11,7 @@ interface PlayerStats {
   skipped: number;
   lastProblem: string | null;
   currentStreak: number;
+  completedTodayLocal: boolean;
 }
 
 interface ChallengeStatsData {
@@ -27,6 +28,7 @@ const mockStats: ChallengeStatsData = {
       skipped: 1,
       lastProblem: "Reverse Nodes in k-Group",
       currentStreak: 7,
+      completedTodayLocal: true,
     },
     {
       id: "2",
@@ -35,6 +37,7 @@ const mockStats: ChallengeStatsData = {
       skipped: 2,
       lastProblem: "Trapping Rain Water",
       currentStreak: 3,
+      completedTodayLocal: false,
     }
   ]
 };
@@ -149,7 +152,7 @@ export const Stats = () => {
             <div className="p-6 pt-0 space-y-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  {user.currentStreak > 0 ? (
+                  {user.completedTodayLocal ? (
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 border-2 border-emerald-300">
                       <Check className="h-5 w-5 text-emerald-600" />
                     </div>
