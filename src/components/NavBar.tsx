@@ -24,14 +24,34 @@ export function Navbar() {
     setIsSkipDialogOpen(false);
   };
 
-  const handleSubmitProblem = (data: {
+  const handleSubmitProblem = async (data: {
     userId: string;
     problemName: string;
     problemLink: string;
     difficulty: 'easy' | 'medium' | 'hard';
   }) => {
-    console.log('Problem logged:', data);
-    // In a real application, you would save this data to your database
+    try {
+      const response = await fetch('/api/log-problem', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Problem logged successfully via API:', result);
+      // In a real application, you would save this data to your database
+      // setIsLogDialogOpen(false); // Already handled in LogProblemDialog's own submit
+    } catch (error) {
+      console.error('Failed to log problem:', error);
+      // Here you could set an error state and display it to the user
+    }
   };
 
   const handleConfirmSkip = () => {
