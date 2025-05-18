@@ -54,9 +54,29 @@ export function Navbar() {
     }
   };
 
-  const handleConfirmSkip = () => {
-    console.log('Skip confirmed');
-    // In a real application, you would increment the user's skip count
+  const handleConfirmSkip = async (userId: string) => {
+    try {
+      const response = await fetch('/api/log-skip', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log(`Skip confirmed for user ID: ${userId} via API:`, result);
+      // In a real application, you would increment the user's skip count for the specified user
+      // setIsSkipDialogOpen(false); // Already handled in SkipConfirmDialog's own confirm
+    } catch (error) {
+      console.error(`Failed to log skip for user ID: ${userId}:`, error);
+      // Here you could set an error state and display it to the user
+    }
   };
 
   return (

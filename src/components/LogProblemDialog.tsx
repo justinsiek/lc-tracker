@@ -146,7 +146,7 @@ export function LogProblemDialog({ isOpen, onClose, onSubmit }: LogProblemDialog
           <div className="flex justify-end space-x-2">
             <button
               type="button"
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200"
               onClick={onClose}
             >
               Cancel

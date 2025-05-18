@@ -1,16 +1,23 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
 interface SkipConfirmDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (userId: string) => void;
 }
 
 export function SkipConfirmDialog({ isOpen, onClose, onConfirm }: SkipConfirmDialogProps) {
+  const [userId, setUserId] = useState<string>("1"); // Default to Noah (user ID 1)
+
   if (!isOpen) return null;
+
+  const handleConfirm = () => {
+    onConfirm(userId);
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -21,25 +28,51 @@ export function SkipConfirmDialog({ isOpen, onClose, onConfirm }: SkipConfirmDia
         </div>
         <h2 className="text-xl font-semibold mb-2 text-center">Use Skip</h2>
         
-        <p className="text-gray-700 mb-6 text-center">
+        <p className="text-gray-700 mb-4 text-center"> 
           Are you sure you want to use a skip? This will count against your monthly skip limit.
         </p>
+
+        {/* User Selection */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2 text-center">For which user?</label>
+          <div className="flex">
+            <button
+              type="button"
+              className={`flex-1 py-2 text-sm font-medium rounded-l-lg border ${
+                userId === "1" 
+                  ? "bg-green-600 text-white border-green-600" 
+                  : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
+              }`}
+              onClick={() => setUserId("1")}
+            >
+              Noah
+            </button>
+            <button
+              type="button"
+              className={`flex-1 py-2 text-sm font-medium rounded-r-lg border ${
+                userId === "2" 
+                  ? "bg-green-600 text-white border-green-600" 
+                  : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
+              }`}
+              onClick={() => setUserId("2")}
+            >
+              Justin
+            </button>
+          </div>
+        </div>
         
         <div className="flex justify-center space-x-4">
           <button
             type="button"
-            className="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+            className="px-6 py-2 w-full text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200"
             onClick={onClose}
           >
             Cancel
           </button>
           <button
             type="button"
-            className="px-6 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
+            className="px-6 py-2 w-full text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+            onClick={handleConfirm}
           >
             Confirm Skip
           </button>
