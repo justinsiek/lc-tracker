@@ -3,10 +3,12 @@
 import { useState } from "react"
 import { LogProblemDialog } from "./LogProblemDialog"
 import { SkipConfirmDialog } from "./SkipConfirmDialog"
+import { useStatsRefresh } from "@/contexts/StatsContext"
 
 export function Navbar() {
   const [isLogDialogOpen, setIsLogDialogOpen] = useState(false);
   const [isSkipDialogOpen, setIsSkipDialogOpen] = useState(false);
+  const { triggerRefresh } = useStatsRefresh();
 
   const handleLogProblem = () => {
     setIsLogDialogOpen(true);
@@ -46,7 +48,7 @@ export function Navbar() {
 
       const result = await response.json();
       console.log('Problem logged successfully via API:', result);
-      // In a real application, you would save this data to your database
+      triggerRefresh();
       // setIsLogDialogOpen(false); // Already handled in LogProblemDialog's own submit
     } catch (error) {
       console.error('Failed to log problem:', error);
@@ -71,7 +73,7 @@ export function Navbar() {
 
       const result = await response.json();
       console.log(`Skip confirmed for user ID: ${userId} via API:`, result);
-      // In a real application, you would increment the user's skip count for the specified user
+      triggerRefresh();
       // setIsSkipDialogOpen(false); // Already handled in SkipConfirmDialog's own confirm
     } catch (error) {
       console.error(`Failed to log skip for user ID: ${userId}:`, error);

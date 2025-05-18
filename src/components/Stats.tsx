@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { CalendarDays, Check, X, Flame } from 'lucide-react'
+import { useStatsRefresh } from '@/contexts/StatsContext'
 
 interface PlayerStats {
   id: string;
@@ -42,6 +43,7 @@ export const Stats = () => {
   const [challengeStats, setChallengeStats] = useState<ChallengeStatsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { refreshKey } = useStatsRefresh();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -64,7 +66,7 @@ export const Stats = () => {
     };
 
     fetchStats();
-  }, []);
+  }, [refreshKey]);
 
   if (isLoading) {
     return <div className="mx-auto space-y-4 text-center"><p>Loading stats...</p></div>;
