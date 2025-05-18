@@ -37,7 +37,9 @@ export const Calendar = () => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(
+    new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  );
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
 
   const [problemsData, setProblemsData] = useState<Problem[]>([]);
