@@ -48,6 +48,31 @@ export const Stats = () => {
   const [error, setError] = useState<string | null>(null);
   const { refreshKey } = useStatsRefresh();
 
+  // Define the challenge start date (PST/PDT)
+  const challengeStartDatePST = new Date(2025, 5 - 1, 14); // Month is 0-indexed, so 5 - 1 = April for May. Corrected to 5-1 for May.
+
+  // Function to get current date in PST/PDT as a Date object (start of day)
+  const getCurrentPSTDateObject = () => {
+    // Get current date/time string in PST/PDT
+    const nowPSTString = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
+    // Parse that string back into a Date object. This object's "time" will be PST/PDT,
+    // but its internal representation might still be based on system's UTC offset.
+    // For day difference, we primarily care about the date components.
+    const nowPSTDate = new Date(nowPSTString);
+    // Normalize to start of the day in PST to avoid time-of-day issues in calculation
+    return new Date(nowPSTDate.getFullYear(), nowPSTDate.getMonth(), nowPSTDate.getDate());
+  };
+  
+  const todayPST = getCurrentPSTDateObject();
+  
+  // Calculate days since challenge start
+  // Ensure challengeStartDatePST is also treated as start of day for fair comparison
+  const startDateNormalized = new Date(challengeStartDatePST.getFullYear(), challengeStartDatePST.getMonth(), challengeStartDatePST.getDate());
+  
+  const timeDifference = todayPST.getTime() - startDateNormalized.getTime();
+  // Add 1 because if today is the start date, it's day 1
+  const daysSinceChallengeStart = Math.floor(timeDifference / (1000 * 3600 * 24)) + 1;
+
   useEffect(() => {
     const fetchStats = async () => {
       setIsLoading(true);
@@ -95,7 +120,12 @@ export const Stats = () => {
             <h3 className="text-md font-medium">Challenge Duration</h3>
           </div>
           <div className="py-4 px-6 pt-0">
-            <div className="text-2xl text-green-600 font-bold">2 <span className="text-sm font-normal text-gray-500">days</span></div>
+            <div className="text-2xl text-green-600 font-bold">
+              {daysSinceChallengeStart < 1 ? 1 : daysSinceChallengeStart}
+              <span className="text-sm font-normal text-gray-500 ml-1">
+                {daysSinceChallengeStart === 1 ? "day" : "days"}
+              </span>
+            </div>
           </div>
         </div>
 
