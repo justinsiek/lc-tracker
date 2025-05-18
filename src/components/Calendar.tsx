@@ -14,6 +14,7 @@ interface Problem {
   difficulty: ProblemDifficulty;
   date: Date;
   userId: string;
+  problemLink: string;
 }
 
 // API response type (date is string)
@@ -23,6 +24,7 @@ interface ApiProblem {
   difficulty: ProblemDifficulty;
   date: string; // Date from API is a string
   userId: string;
+  problemLink: string;
 }
 
 // User data (matching Stats component)
@@ -378,12 +380,17 @@ export const Calendar = () => {
                     <ul className="text-sm">
                       {userProblems.map(problem => (
                         <li key={problem.id} className="flex items-center mt-1">
-                          <div className={`w-2 h-2 rounded-full ${getDifficultyColor(problem.difficulty)} mr-2`}></div>
-                          {problem.title} 
-                          <span className={`ml-1 px-1.5 py-0.5 rounded text-xs ${
-                            problem.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-                            problem.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                          <div className={`w-3 h-3 rounded-full border-2 ${getDifficultyColor(problem.difficulty)} mr-2`}></div>
+                          <a 
+                            href={problem.problemLink} 
+                            className="hover:text-green-600 hover:underline"
+                          >
+                            {problem.title}
+                          </a>
+                          <span className={`ml-1 px-1.5 py-0.5 rounded text-xs border-2 ${
+                            problem.difficulty === 'easy' ? 'bg-green-100 text-green-800 border-green-200' :
+                            problem.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                            'bg-red-100 text-red-800 border-red-200'
                           }`}>
                             {problem.difficulty}
                           </span>

@@ -18,29 +18,6 @@ interface ChallengeStatsData {
   users: PlayerStats[];
 }
 
-// Mock Data
-const mockStats: ChallengeStatsData = {
-  users: [
-    {
-      id: "1",
-      name: "Noah",
-      completed: 17,
-      skipped: 1,
-      lastProblem: "Reverse Nodes in k-Group",
-      currentStreak: 7,
-      completedTodayLocal: true,
-    },
-    {
-      id: "2",
-      name: "Justin",
-      completed: 16,
-      skipped: 2,
-      lastProblem: "Trapping Rain Water",
-      currentStreak: 3,
-      completedTodayLocal: false,
-    }
-  ]
-};
 
 export const Stats = () => {
   const [challengeStats, setChallengeStats] = useState<ChallengeStatsData | null>(null);

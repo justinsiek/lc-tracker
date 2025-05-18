@@ -13,6 +13,7 @@ export async function GET(request: Request) {
       .select(`
         id, 
         problem_name, 
+        problem_link,
         difficulty, 
         created_at, 
         user_id
@@ -27,6 +28,7 @@ export async function GET(request: Request) {
     const formattedProblems = problemsData.map(problem => ({
       id: problem.id.toString(),
       title: problem.problem_name,
+      problemLink: problem.problem_link,
       difficulty: problem.difficulty as 'easy' | 'medium' | 'hard', // Type assertion
       date: problem.created_at, // ISO string, will be converted to Date on client
       userId: problem.user_id,
