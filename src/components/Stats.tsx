@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import { CalendarDays, Check, X, Flame } from 'lucide-react'
 
 interface PlayerStats {
@@ -6,7 +8,7 @@ interface PlayerStats {
   name: string;
   completed: number;
   skipped: number;
-  lastProblem: string;
+  lastProblem: string | null;
   currentStreak: number;
 }
 
@@ -37,8 +39,47 @@ const mockStats: ChallengeStatsData = {
 };
 
 export const Stats = () => {
-  const data = mockStats;
-  const today = new Date();
+  const [challengeStats, setChallengeStats] = useState<ChallengeStatsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/stats');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        const data: ChallengeStatsData = await response.json();
+        setChallengeStats(data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch stats');
+        setChallengeStats(null); // Optionally clear data or use mockStats as fallback
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (isLoading) {
+    return <div className="mx-auto space-y-4 text-center"><p>Loading stats...</p></div>;
+  }
+
+  if (error) {
+    return <div className="mx-auto space-y-4 text-center text-red-500"><p>Error loading stats: {error}</p></div>;
+  }
+
+  if (!challengeStats || !challengeStats.users || challengeStats.users.length === 0) {
+    return <div className="mx-auto space-y-4 text-center"><p>No stats data available.</p></div>;
+  }
+
+  const totalProblemsCompleted = challengeStats.users.reduce((sum, user) => sum + user.completed, 0);
+  const totalSkipsUsed = challengeStats.users.reduce((sum, user) => sum + user.skipped, 0);
 
   return (
     <div className="mx-auto space-y-4">
@@ -69,7 +110,7 @@ export const Stats = () => {
             <h3 className="text-md font-medium text-gray-800">Problems Completed</h3>
           </div>
           <div className="py-4 px-6 pt-0">
-            <div className="text-2xl font-bold text-green-600">{data.users[0].completed} <span className="text-sm font-normal text-gray-500">problems completed</span></div>
+            <div className="text-2xl font-bold text-green-600">{totalProblemsCompleted} <span className="text-sm font-normal text-gray-500">problems completed</span></div>
           </div>
         </div>
 
@@ -79,13 +120,13 @@ export const Stats = () => {
             <h3 className="text-md font-medium text-gray-800">Skips Used</h3>
           </div>
           <div className="py-4 px-6 pt-0">
-            <div className="text-2xl font-bold text-green-600">{data.users[1].skipped} <span className="text-sm font-normal text-gray-500">skips used</span></div>
+            <div className="text-2xl font-bold text-green-600">{totalSkipsUsed} <span className="text-sm font-normal text-gray-500">skips used</span></div>
           </div>
         </div>
       </div>
 
       <div className="flex gap-4 w-full">
-        {data.users.map((user) => (
+        {challengeStats.users.map((user) => (
           <div key={user.id} className="rounded-lg border border-gray-300 bg-card w-full">
             <div className="p-6">
               <div className="flex justify-between">
@@ -109,7 +150,7 @@ export const Stats = () => {
                   </div>
                   <div>
                     <div className="text-sm font-medium">Last Problem</div>
-                    <div className="text-xs text-muted-foreground">{user.lastProblem}</div>
+                    <div className="text-xs text-muted-foreground">{user.lastProblem || 'N/A'}</div>
                   </div>
                 </div>
                 
