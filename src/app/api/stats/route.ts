@@ -25,6 +25,30 @@ function getCurrentDateInPST(): string {
   return formatter.format(now);
 }
 
+// Helper function to get the current month range in PST
+function getCurrentMonthRangeInPST(): { startOfMonth: string; endOfMonth: string } {
+  const now = new Date();
+  const nowInPST = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}));
+  
+  // Get first day of current month
+  const startOfMonth = new Date(nowInPST.getFullYear(), nowInPST.getMonth(), 1);
+  
+  // Get first day of next month (to use as exclusive end date)
+  const endOfMonth = new Date(nowInPST.getFullYear(), nowInPST.getMonth() + 1, 1);
+  
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  
+  return {
+    startOfMonth: formatter.format(startOfMonth),
+    endOfMonth: formatter.format(endOfMonth)
+  };
+}
+
 // Helper function to get a YYYY-MM-DD string from a Date object for 'America/Los_Angeles'
 function formatDateToPSTString(date: Date): string {
     const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -129,11 +153,14 @@ export async function GET(request: Request) {
         // return a partial or error object if needed, or default values
       }
 
-      // 2. Get skips used count
+      // 2. Get skips used count for current month only
+      const { startOfMonth, endOfMonth } = getCurrentMonthRangeInPST();
       const { count: skipped, error: skippedError } = await supabase
         .from('skips')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .gte('created_at', `${startOfMonth}T00:00:00`)
+        .lt('created_at', `${endOfMonth}T00:00:00`);
 
       if (skippedError) {
         console.error(`Error fetching skipped count for user ${user.id}:`, skippedError);
