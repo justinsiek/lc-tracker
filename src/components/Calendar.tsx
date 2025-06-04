@@ -386,6 +386,7 @@ export const Calendar = () => {
                           <a 
                             href={problem.problemLink} 
                             className="hover:text-green-600 hover:underline"
+                            target="_blank"
                           >
                             {problem.title}
                           </a>

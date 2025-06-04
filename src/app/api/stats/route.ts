@@ -156,6 +156,16 @@ export async function GET(request: Request) {
         // return a partial or error object if needed, or default values
       }
 
+      // 1b. Get total problems completed count (all time)
+      const { count: completedTotal, error: completedTotalError } = await supabase
+        .from('problems')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (completedTotalError) {
+        console.error(`Error fetching total completed count for user ${user.id}:`, completedTotalError);
+      }
+
       // 2. Get skips used count for current month only
       const { count: skipped, error: skippedError } = await supabase
         .from('skips')
@@ -168,10 +178,20 @@ export async function GET(request: Request) {
         console.error(`Error fetching skipped count for user ${user.id}:`, skippedError);
       }
 
-      // 3. Get last problem name
+      // 2b. Get total skips used count (all time)
+      const { count: skippedTotal, error: skippedTotalError } = await supabase
+        .from('skips')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (skippedTotalError) {
+        console.error(`Error fetching total skipped count for user ${user.id}:`, skippedTotalError);
+      }
+
+      // 3. Get last problem name and link
       const { data: lastProblemData, error: lastProblemError } = await supabase
         .from('problems')
-        .select('problem_name')
+        .select('problem_name, problem_link')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false }) // This still orders by actual timestamp
         .limit(1);
@@ -180,6 +200,7 @@ export async function GET(request: Request) {
         console.error(`Error fetching last problem for user ${user.id}:`, lastProblemError);
       }
       const lastProblemName = lastProblemData && lastProblemData.length > 0 ? lastProblemData[0].problem_name : null;
+      const lastProblemLink = lastProblemData && lastProblemData.length > 0 ? lastProblemData[0].problem_link : null;
       
       // 4. Calculate current streak based on PST dates
       const currentStreak = await calculateCurrentStreak(user.id);
@@ -202,8 +223,11 @@ export async function GET(request: Request) {
         id: user.id,
         name: user.name,
         completed: completed ?? 0,
+        completedTotal: completedTotal ?? 0,
         skipped: skipped ?? 0,
+        skippedTotal: skippedTotal ?? 0,
         lastProblem: lastProblemName,
+        lastProblemLink: lastProblemLink,
         currentStreak: currentStreak,
         completedTodayLocal: completedTodayLocal,
       };

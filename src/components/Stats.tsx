@@ -8,8 +8,11 @@ interface PlayerStats {
   id: string;
   name: string;
   completed: number;
+  completedTotal: number;
   skipped: number;
+  skippedTotal: number;
   lastProblem: string | null;
+  lastProblemLink: string | null;
   currentStreak: number;
   completedTodayLocal: boolean;
 }
@@ -85,8 +88,8 @@ export const Stats = () => {
     return <div className="mx-auto space-y-4 text-center"><p>No stats data available.</p></div>;
   }
 
-  const totalProblemsCompleted = challengeStats.users.reduce((sum, user) => sum + user.completed, 0);
-  const totalSkipsUsed = challengeStats.users.reduce((sum, user) => sum + user.skipped, 0);
+  const totalProblemsCompleted = challengeStats.users.reduce((sum, user) => sum + user.completedTotal, 0);
+  const totalSkipsUsed = challengeStats.users.reduce((sum, user) => sum + user.skippedTotal, 0);
 
   return (
     <div className="mx-auto space-y-4">
@@ -170,7 +173,24 @@ export const Stats = () => {
                   )}
                   <div>
                     <div className="text-sm font-medium">Last Problem</div>
-                    <div className="text-xs text-muted-foreground">{user.lastProblem || 'N/A'}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {user.lastProblem ? (
+                        user.lastProblemLink ? (
+                          <a 
+                            href={user.lastProblemLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="hover:text-green-600 hover:underline"
+                          >
+                            {user.lastProblem}
+                          </a>
+                        ) : (
+                          user.lastProblem
+                        )
+                      ) : (
+                        'N/A'
+                      )}
+                    </div>
                   </div>
                 </div>
                 
