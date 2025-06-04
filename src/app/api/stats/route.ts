@@ -141,11 +141,14 @@ async function calculateCurrentStreak(userId: string): Promise<number> {
 export async function GET(request: Request) {
   try {
     const playerStatsPromises = usersMeta.map(async (user) => {
-      // 1. Get completed problems count
+      // 1. Get completed problems count for current month only
+      const { startOfMonth, endOfMonth } = getCurrentMonthRangeInPST();
       const { count: completed, error: completedError } = await supabase
         .from('problems')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .gte('created_at', `${startOfMonth}T00:00:00`)
+        .lt('created_at', `${endOfMonth}T00:00:00`);
 
       if (completedError) {
         // Not throwing here, just logging and continuing, so one user's error doesn't break all stats
@@ -154,7 +157,6 @@ export async function GET(request: Request) {
       }
 
       // 2. Get skips used count for current month only
-      const { startOfMonth, endOfMonth } = getCurrentMonthRangeInPST();
       const { count: skipped, error: skippedError } = await supabase
         .from('skips')
         .select('*', { count: 'exact', head: true })
